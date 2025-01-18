@@ -1,0 +1,13 @@
+# Dockerfile for reservations-service
+
+FROM python:3.9-slim-buster  # Use appropriate Python version
+
+WORKDIR /app
+
+COPY . /app
+
+RUN pip install --no-cache-dir -r requirements.txt
+
+EXPOSE 8005
+
+CMD ["python", "app.py"]

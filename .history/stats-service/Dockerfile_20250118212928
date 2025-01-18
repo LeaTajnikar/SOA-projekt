@@ -1,3 +1,5 @@
+# Dockerfile for stats-service
+
 FROM python:3.9-slim-buster
 
 WORKDIR /app

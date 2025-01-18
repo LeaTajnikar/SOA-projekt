@@ -1,0 +1,37 @@
+version: "3.9" # Or later
+
+services:
+  client:
+    build: ./client
+    ports:
+      - "80:80"
+
+  books-service:
+    build: ./books-service
+    ports:
+      - "8001:8001"
+
+  feedback-service:
+    build: ./feedback-service
+    ports:
+      - "8003:8003"
+
+  notifications-service:
+    build: ./notifications-service
+    ports:
+      - "8004:8004"
+
+  reservations-service:
+    build: ./reservations-service
+    ports:
+      - "8005:8005"
+
+  stats-service:
+    build: ./stats-service
+    ports:
+      - "8006:8006"
+
+  users-service:
+    build: ./users-service
+    ports:
+      - "8002:8002"
