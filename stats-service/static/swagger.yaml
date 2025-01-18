@@ -1,0 +1,138 @@
+openapi: 3.0.0
+info:
+  title: Statistics Service API
+  version: 1.0.0
+  description: API za upravljanje statistik knjižnične aplikacije.
+servers:
+  - url: http://localhost:8006
+paths:
+  /stats:
+    get:
+      summary: Pridobi vse zapise iz statistike
+      responses:
+        '200':
+          description: Seznam vseh statistik
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      description: Tip statistike
+                    value:
+                      type: integer
+                      description: Vrednost statistike
+                    description:
+                      type: string
+                      description: Opis statistike
+        '500':
+          description: Napaka strežnika
+    post:
+      summary: Ustvari nov zapis za statistiko
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                type:
+                  type: string
+                  description: Tip statistike
+                value:
+                  type: integer
+                  description: Vrednost statistike
+                description:
+                  type: string
+                  description: Opis statistike
+              required:
+                - type
+                - value
+      responses:
+        '201':
+          description: Statistika uspešno ustvarjena
+        '400':
+          description: Manjkajo zahtevani podatki
+        '500':
+          description: Napaka strežnika
+    put:
+      summary: Izračunaj in posodobi statistiko
+      responses:
+        '200':
+          description: Statistika posodobljena
+        '500':
+          description: Napaka strežnika
+  /stats/{stat_id}:
+    get:
+      summary: Pridobi določen zapis iz statistike
+      parameters:
+        - name: stat_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID statistike
+      responses:
+        '200':
+          description: Določena statistika
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  type:
+                    type: string
+                    description: Tip statistike
+                  value:
+                    type: integer
+                    description: Vrednost statistike
+                  description:
+                    type: string
+                    description: Opis statistike
+        '404':
+          description: Statistika ni bila najdena
+        '500':
+          description: Napaka strežnika
+    put:
+      summary: Posodobi obstoječi zapis v statistiki
+      parameters:
+        - name: stat_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID statistike
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Statistika uspešno posodobljena
+        '400':
+          description: Manjkajo podatki zahteve
+        '404':
+          description: Statistika ni bila najdena
+        '500':
+          description: Napaka strežnika
+    delete:
+      summary: Izbriši zapis iz statistike
+      parameters:
+        - name: stat_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID statistike
+      responses:
+        '200':
+          description: Statistika uspešno izbrisana
+        '404':
+          description: Statistika ni bila najdena
+        '500':
+          description: Napaka strežnika

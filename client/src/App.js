@@ -10,6 +10,7 @@ import AddNotification from './components/AddNotification';
 import NotificationList from './components/NotificationList';
 import AddReservation from './components/AddReservation';
 import ReservationList from './components/ReservationList';
+import StatistikaKomponenta from './components/StatistikaKomponenta';
 
 const App = () => {
     return (
@@ -29,8 +30,11 @@ const App = () => {
             <hr />
             <AddReservation />
             <ReservationList />
+            <hr />
+            <StatistikaKomponenta />
         </div>
     );
 };
+
 
 export default App;
