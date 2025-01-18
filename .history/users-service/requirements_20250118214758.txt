@@ -1,0 +1,5 @@
+Flask
+Flask-Cors
+pymongo
+Flask-Swagger-UI
+python-dotenv

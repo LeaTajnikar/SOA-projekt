@@ -4,3 +4,4 @@ pymongo
 requests
 Flask-Swagger-UI
 python-dotenv
+flask_restx
