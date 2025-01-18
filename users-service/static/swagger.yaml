@@ -1,0 +1,92 @@
+openapi: 3.0.0
+info:
+  title: User Service API
+  description: API za upravljanje uporabnikov v knjižnici
+  version: 1.0.0
+servers:
+  - url: http://localhost:8002
+    description: Lokalni strežnik za User Service
+
+paths:
+  /users:
+    get:
+      summary: Pridobi vse uporabnike
+      description: Vrne seznam vseh uporabnikov v sistemu.
+      responses:
+        '200':
+          description: Uspešna vrnitev seznama uporabnikov.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    username:
+                      type: string
+                    email:
+                      type: string
+    post:
+      summary: Dodaj novega uporabnika
+      description: Ustvari novega uporabnika z uporabniškim imenom in e-pošto.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                email:
+                  type: string
+              required:
+                - username
+                - email
+      responses:
+        '201':
+          description: Uspešno dodan uporabnik.
+        '400':
+          description: Manjkajoča polja.
+
+  /users/{username}:
+    get:
+      summary: Pridobi podatke o določenem uporabniku
+      description: Vrne podatke o uporabniku glede na uporabniško ime.
+      parameters:
+        - in: path
+          name: username
+          required: true
+          schema:
+            type: string
+          description: Uporabniško ime uporabnika
+      responses:
+        '200':
+          description: Uspešna vrnitev podatkov uporabnika.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  username:
+                    type: string
+                  email:
+                    type: string
+        '404':
+          description: Uporabnik ni bil najden.
+
+    delete:
+      summary: Izbriši uporabnika
+      description: Izbriše uporabnika glede na uporabniško ime.
+      parameters:
+        - in: path
+          name: username
+          required: true
+          schema:
+            type: string
+          description: Uporabniško ime uporabnika
+      responses:
+        '200':
+          description: Uspešno izbrisan uporabnik.
+        '404':
+          description: Uporabnik ni bil najden.

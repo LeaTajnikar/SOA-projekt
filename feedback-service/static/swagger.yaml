@@ -1,0 +1,112 @@
+openapi: 3.0.0
+info:
+  title: Feedback Service API
+  description: API za upravljanje feedbackov uporabnikov
+  version: 1.0.0
+servers:
+  - url: http://localhost:8003
+    description: Lokalni strežnik za Feedback Service
+
+paths:
+  /feedback:
+    get:
+      summary: Pridobi vse feedbacke
+      description: Vrne seznam vseh feedbackov v sistemu.
+      responses:
+        '200':
+          description: Uspešna vrnitev seznama feedbackov.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    username:
+                      type: string
+                    message:
+                      type: string
+                    rating:
+                      type: integer
+                      format: int32
+                    status:
+                      type: string
+    post:
+      summary: Dodaj nov feedback
+      description: Ustvari nov feedback za uporabnika.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                message:
+                  type: string
+                rating:
+                  type: integer
+                  format: int32
+              required:
+                - username
+                - message
+                - rating
+      responses:
+        '201':
+          description: Uspešno dodan feedback.
+        '400':
+          description: Manjkajoči podatki.
+        '404':
+          description: Uporabnik ni bil najden.
+
+  /feedback/{username}/approve:
+    post:
+      summary: Potrdi feedback uporabnika
+      description: Nastavi status feedbacka uporabnika na "approved".
+      parameters:
+        - in: path
+          name: username
+          required: true
+          schema:
+            type: string
+          description: Uporabniško ime uporabnika
+      responses:
+        '200':
+          description: Feedback uspešno potrjen.
+        '404':
+          description: Feedback za uporabnika ni bil najden.
+
+  /feedback/{username}/reject:
+    post:
+      summary: Zavrni feedback uporabnika
+      description: Nastavi status feedbacka uporabnika na "rejected".
+      parameters:
+        - in: path
+          name: username
+          required: true
+          schema:
+            type: string
+          description: Uporabniško ime uporabnika
+      responses:
+        '200':
+          description: Feedback uspešno zavrnjen.
+        '404':
+          description: Feedback za uporabnika ni bil najden.
+
+  /feedback/{username}:
+    delete:
+      summary: Izbriši feedback uporabnika
+      description: Izbriše feedback za določenega uporabnika.
+      parameters:
+        - in: path
+          name: username
+          required: true
+          schema:
+            type: string
+          description: Uporabniško ime uporabnika
+      responses:
+        '200':
+          description: Feedback uspešno izbrisan.
+        '404':
+          description: Feedback ni bil najden.

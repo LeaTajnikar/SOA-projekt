@@ -1,10 +1,25 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+from flask_swagger_ui import get_swaggerui_blueprint
 from pymongo import MongoClient
 import os
+from flask_restx import Api, Resource, fields
 
 app = Flask(__name__)
 CORS(app)
+
+SWAGGER_URL = '/swagger'  # URL za dostop do Swagger UI
+API_URL = '/static/swagger.yaml'  # Pot do datoteke swagger.yaml v mapi static
+
+swaggerui_blueprint = get_swaggerui_blueprint(
+    SWAGGER_URL,
+    API_URL,
+    config={
+        'app_name': "Books Service API"
+    }
+)
+
+app.register_blueprint(swaggerui_blueprint, url_prefix=SWAGGER_URL)
 
 with open('../.env') as f:
     for line in f:

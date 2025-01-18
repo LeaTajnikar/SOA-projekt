@@ -1,0 +1,77 @@
+openapi: 3.0.0
+info:
+  title: Notification Service API
+  description: API za upravljanje obvestil in interakcijo z rezervacijami.
+  version: 1.0.0
+servers:
+  - url: http://localhost:8004
+    description: Lokalni strežnik za Notification Service
+
+paths:
+  /notifications:
+    get:
+      summary: Pridobi vsa obvestila
+      description: Vrne seznam vseh obvestil iz baze.
+      responses:
+        '200':
+          description: Uspešna vrnitev seznama obvestil.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    title:
+                      type: string
+                    message:
+                      type: string
+                    user:
+                      type: string
+    post:
+      summary: Dodaj novo obvestilo
+      description: Ustvari novo obvestilo za uporabnika.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                message:
+                  type: string
+                user:
+                  type: string
+              required:
+                - title
+                - message
+                - user
+      responses:
+        '201':
+          description: Obvestilo uspešno dodano.
+        '400':
+          description: Manjkajoča polja v zahtevi.
+
+  /notifications/{title}:
+    delete:
+      summary: Izbriši obvestilo
+      description: Izbriše obvestilo glede na naslov.
+      parameters:
+        - in: path
+          name: title
+          required: true
+          schema:
+            type: string
+          description: Naslov obvestila
+      responses:
+        '200':
+          description: Obvestilo uspešno izbrisano.
+        '404':
+          description: Obvestilo ni bilo najdeno.
+
+  /notifications/{username}:
+    post:
+      summary: Pošlji obvestilo uporabniku
+      description: Poš

@@ -1,0 +1,111 @@
+openapi: 3.0.0
+info:
+  title: Books Service API
+  version: 1.0.0
+  description: API za upravljanje s knjigami
+
+servers:
+  - url: http://localhost:8001
+    description: Lokalen razvojni strežnik
+
+paths:
+  /books:
+    get:
+      summary: Pridobi vse knjige
+      description: Vrne seznam vseh knjig v zbirki
+      responses:
+        '200':
+          description: Uspešno pridobljene knjige
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Book'
+    post:
+      summary: Dodaj novo knjigo
+      description: Doda novo knjigo v zbirko
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Book'
+      responses:
+        '201':
+          description: Knjiga uspešno dodana
+
+  /books/{title}:
+    get:
+      summary: Pridobi podrobnosti o knjigi
+      description: Vrne podrobnosti o knjigi z določenim naslovom
+      parameters:
+        - name: title
+          in: path
+          required: true
+          description: Naslov knjige
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Knjiga najdena
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Book'
+        '404':
+          description: Knjiga ni bila najdena
+    delete:
+      summary: Izbriši knjigo
+      description: Izbriše knjigo z določenim naslovom
+      parameters:
+        - name: title
+          in: path
+          required: true
+          description: Naslov knjige
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Knjiga uspešno izbrisana
+        '404':
+          description: Knjiga ni bila najdena
+    put:
+      summary: Posodobi knjigo
+      description: Posodobi podatke knjige z določenim naslovom
+      parameters:
+        - name: title
+          in: path
+          required: true
+          description: Naslov knjige
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Book'
+      responses:
+        '200':
+          description: Knjiga uspešno posodobljena
+        '404':
+          description: Knjiga ni bila najdena
+
+components:
+  schemas:
+    Book:
+      type: object
+      properties:
+        title:
+          type: string
+          description: Naslov knjige
+        author:
+          type: string
+          description: Avtor knjige
+        genre:
+          type: string
+          description: Žanr knjige
+        reserved:
+          type: boolean
+          description: Status rezervacije knjige

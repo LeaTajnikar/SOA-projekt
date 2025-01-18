@@ -1,0 +1,135 @@
+openapi: 3.0.0
+info:
+  title: Reservation Service API
+  description: API za upravljanje rezervacij knjig.
+  version: 1.0.0
+servers:
+  - url: http://localhost:8005
+    description: Lokalni strežnik za Reservation Service
+
+paths:
+  /reservations:
+    get:
+      summary: Pridobi vse rezervacije
+      description: Vrne seznam vseh rezervacij. Možno je filtrirati po uporabniku in/ali naslovu knjige.
+      parameters:
+        - in: query
+          name: user
+          schema:
+            type: string
+          description: Uporabniško ime za filtriranje rezervacij
+        - in: query
+          name: book_title
+          schema:
+            type: string
+          description: Naslov knjige za filtriranje rezervacij
+      responses:
+        '200':
+          description: Uspešna vrnitev seznama rezervacij
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    username:
+                      type: string
+                    book_title:
+                      type: string
+                    reservation_date:
+                      type: string
+                    expiration_date:
+                      type: string
+
+    post:
+      summary: Dodaj novo rezervacijo
+      description: Ustvari novo rezervacijo za knjigo.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                book_title:
+                  type: string
+              required:
+                - username
+                - book_title
+      responses:
+        '201':
+          description: Rezervacija uspešno ustvarjena
+        '400':
+          description: Napaka pri ustvarjanju rezervacije (npr. knjiga ni na voljo)
+
+  /reservations/active:
+    get:
+      summary: Pridobi aktivne rezervacije
+      description: Vrne seznam vseh aktivnih rezervacij, katerih datum poteka še ni potekel.
+      responses:
+        '200':
+          description: Uspešna vrnitev seznama aktivnih rezervacij
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    username:
+                      type: string
+                    book_title:
+                      type: string
+                    reservation_date:
+                      type: string
+                    expiration_date:
+                      type: string
+
+  /reservations/{username}/{book_title}:
+    delete:
+      summary: Izbriši rezervacijo
+      description: Izbriše rezervacijo glede na uporabnika in naslov knjige.
+      parameters:
+        - in: path
+          name: username
+          required: true
+          schema:
+            type: string
+          description: Uporabniško ime
+        - in: path
+          name: book_title
+          required: true
+          schema:
+            type: string
+          description: Naslov knjige
+      responses:
+        '200':
+          description: Rezervacija uspešno izbrisana
+        '404':
+          description: Rezervacija ni bila najdena
+
+  /reservations/{username}/{book_title}/extend:
+    put:
+      summary: Podaljšaj rezervacijo
+      description: Podaljša datum poteka rezervacije za 7 dni.
+      parameters:
+        - in: path
+          name: username
+          required: true
+          schema:
+            type: string
+          description: Uporabniško ime
+        - in: path
+          name: book_title
+          required: true
+          schema:
+            type: string
+          description: Naslov knjige
+      responses:
+        '200':
+          description: Rezervacija uspešno podaljšana
+        '404':
+          description: Rezervacija ni bila najdena

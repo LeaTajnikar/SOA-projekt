@@ -3,11 +3,24 @@ from flask_cors import CORS
 from pymongo import MongoClient
 import requests
 import os
-
+from flask_swagger_ui import get_swaggerui_blueprint
+from bson import ObjectId
 
 app = Flask(__name__)
 CORS(app)
 
+SWAGGER_URL = '/swagger'  # URL za dostop do Swagger UI
+API_URL = '/static/swagger.yaml'  # Pot do datoteke swagger.yaml v mapi static
+
+swaggerui_blueprint = get_swaggerui_blueprint(
+    SWAGGER_URL,
+    API_URL,
+    config={
+        'app_name': "Books Service API"
+    }
+)
+
+app.register_blueprint(swaggerui_blueprint, url_prefix=SWAGGER_URL)
 
 with open('../.env') as f:
     for line in f:
@@ -25,46 +38,53 @@ collection = db["feedback"]
 
 
 @app.route('/feedback', methods=['GET'])
-def get_feedback():
-    feedback_list = list(collection.find({}, {"_id": 0}))  # Vrni brez `_id`
-    return jsonify(feedback_list)
+def get_feedbacks():
+    feedback_list = list(collection.find({}, {"_id": 0}))  # Vrne vse feedbacke brez `_id`
+    return jsonify(feedback_list), 200
 
 
 # Povezava na Users Service za preverjanje obstoja uporabnika
-USERS_SERVICE_URL = "http://localhost:8001/users/"
+USERS_SERVICE_URL = "http://localhost:8002/users/"
+BOOKS_SERVICE_URL = "http://localhost:8001/books/"
 
-@app.route('/feedbacks', methods=['POST'])
+
+@app.route('/feedback', methods=['POST'])
 def add_feedback():
     data = request.json
     username = data.get('username')
-    feedback_content = data.get('feedback')
+    message = data.get('message')
+    rating = data.get('rating')
 
-    # Preveri, ali uporabnik obstaja v Users Service
+    if not username or not message or not rating:
+        return jsonify({"error": "Manjkajoči podatki v zahtevi."}), 400
+
+    print(f"Prejeta zahteva za dodajanje feedbacka: {data}")
+
+    # Preveri obstoj uporabnika
     user_response = requests.get(f"{USERS_SERVICE_URL}{username}")
     if user_response.status_code == 404:
-        return jsonify({"error": "User not found"}), 404
+        print(f"Uporabnik ni bil najden.")
+        return jsonify({"error": "Uporabnik ni bil najden."}), 404
 
-    # Shrani feedback v MongoDB
+    print(f"Preverjanje uporabnika ({username}): {user_response.status_code}")
+
+
+    # Shrani feedback v bazo
     feedback = {
         "username": username,
-        "feedback": feedback_content,
+        "message": message,
+        "rating": rating,
         "status": "pending"
     }
-    collection.insert_one(feedback)
+    result = collection.insert_one(feedback)
 
-    return jsonify({"message": "Feedback submitted successfully", "feedback": feedback}), 201
+    # Dodaj `_id` kot string v odgovor
+    feedback["_id"] = str(result.inserted_id)
+    print(f"Feedback uspešno dodan: {feedback}")
 
-@app.route('/feedbacks/<username>', methods=['GET'])
-def get_feedbacks(username):
-    # Poišči vse feedbacke za določenega uporabnika v MongoDB
-    user_feedbacks = list(collection.find({"username": username}))
+    return jsonify(feedback), 201
 
-    if not user_feedbacks:
-        return jsonify({"error": "No feedback found for this user"}), 404
-
-    return jsonify({"feedbacks": user_feedbacks}), 200
-
-@app.route('/feedbacks/<username>/approve', methods=['POST'])
+@app.route('/feedback/<username>/approve', methods=['POST'])
 def approve_feedback(username):
     # Poišči feedback za uporabnika v MongoDB
     user_feedbacks = list(collection.find({"username": username}))
@@ -81,7 +101,7 @@ def approve_feedback(username):
 
     return jsonify({"message": "Feedback approved successfully", "feedbacks": user_feedbacks}), 200
 
-@app.route('/feedbacks/<username>/reject', methods=['POST'])
+@app.route('/feedback/<username>/reject', methods=['POST'])
 def reject_feedback(username):
     # Poišči feedback za uporabnika v MongoDB
     user_feedbacks = list(collection.find({"username": username}))
