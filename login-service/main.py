@@ -8,6 +8,7 @@ from pydantic import BaseModel
 from pymongo import MongoClient
 from pymongo.errors import DuplicateKeyError
 import secrets
+import uvicorn
 
 app = FastAPI()
 
@@ -139,3 +140,8 @@ async def delete_my_account(current_user: User = Depends(get_current_user)):
 async def delete_user(username: str, current_user: User = Depends(get_current_active_user)):
     user_collection.delete_one({"username": username})
     return {"message": f"User {username} deleted successfully"}
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="127.0.0.1", port=8010)
+
