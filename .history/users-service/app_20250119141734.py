@@ -3,18 +3,12 @@ from flask_cors import CORS
 from pymongo import MongoClient
 from flask_swagger_ui import get_swaggerui_blueprint
 import os
-from flask_jwt_extended import JWTManager, jwt_required, create_access_token, get_jwt_identity
-
 
 app = Flask(__name__)
 CORS(app)
 
 SWAGGER_URL = '/swagger'  # URL za dostop do Swagger UI
 API_URL = '/static/swagger.yaml'  # Pot do datoteke swagger.yaml v mapi static
-
-app.config["JWT_SECRET_KEY"] = "secret"
-jwt = JWTManager(app)  # Initialize JWT Manager
-
 
 swaggerui_blueprint = get_swaggerui_blueprint(
     SWAGGER_URL,
@@ -40,8 +34,7 @@ collection = db["users"]
 
 @app.route('/users', methods=['GET'])
 def get_users():
-    users = list(collection.find({}, {"_id": 0}))
-    current_user = get_jwt_identity()  # Vrni brez `_id`
+    users = list(collection.find({}, {"_id": 0}))  # Vrni brez `_id`
     return jsonify(users)
 
 

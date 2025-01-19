@@ -40,8 +40,7 @@ collection = db["users"]
 
 @app.route('/users', methods=['GET'])
 def get_users():
-    users = list(collection.find({}, {"_id": 0}))
-    current_user = get_jwt_identity()  # Vrni brez `_id`
+    users = list(collection.find({}, {"_id": 0}))  # Vrni brez `_id`
     return jsonify(users)
 
 
