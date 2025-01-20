@@ -1,0 +1,27 @@
+query {
+  books {
+    title
+    author
+    year
+    genre
+    reserved
+  }
+}
+
+query {
+  book(title: "NovaKnjiga") {
+    title
+    author
+    genre
+    reserved
+  }
+}
+
+mutation {
+  addBook(title: "knjiga", author: "nekdo", genre: "kom", reserved: false) {
+    title
+    author
+    genre
+    reserved
+  }
+}

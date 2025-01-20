@@ -20,7 +20,7 @@ swaggerui_blueprint = get_swaggerui_blueprint(
 app.register_blueprint(swaggerui_blueprint, url_prefix=SWAGGER_URL)
 
 # MongoDB setup
-MONGO_URI = 'mongodb+srv://username:password@your-cluster-url'  # Replace with your MongoDB URI
+MONGO_URI = 'mongodb+srv://Lea:123leici@cluster0.iupgk.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0'  # Replace with your MongoDB URI
 client = MongoClient(MONGO_URI)
 db = client['library']  # database name
 genres_collection = db['genres']  # collection name

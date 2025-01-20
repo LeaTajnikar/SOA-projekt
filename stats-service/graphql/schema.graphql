@@ -1,0 +1,27 @@
+query {
+  stats {
+    id
+    type
+    value
+    description
+  }
+}
+
+query {
+    stat(id: "678bde1e282db61306d64896") {
+        id
+        type
+        value
+        description
+    }
+}
+
+mutation {
+  addStat(type: "visitors", value: 150, description: "Total visitors in 2025") {
+    id
+    type
+    value
+    description
+  }
+}
+

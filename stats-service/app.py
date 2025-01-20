@@ -5,6 +5,14 @@ from pymongo import MongoClient
 from bson import ObjectId
 from flask_swagger_ui import get_swaggerui_blueprint
 import os
+from graphene import ObjectType, String, Int, Schema, Field, List
+from flask import Flask
+from flask_cors import CORS
+from flask_graphql import GraphQLView
+from graphene import ObjectType, String, Int, Schema, Field, List
+from pymongo import MongoClient
+from bson import ObjectId
+import requests
 
 app = Flask(__name__)
 CORS(app)
@@ -35,6 +43,148 @@ stats_collection = db["stats"]
 
 
 RESERVATIONS_SERVICE_URL = "http://localhost:8005/reservations"
+
+
+
+# ------------------ graphql ----------------------
+# GraphQL Types
+class Stat(ObjectType):
+    id = String()
+    type = String(required=True)
+    value = Int(required=True)
+    description = String()
+
+# GraphQL Query
+class Query(ObjectType):
+    stats = List(Stat)
+    stat = Field(Stat, id=String(required=True))
+
+    def resolve_stats(self, info):
+        stats_data = stats_collection.find({})
+        return [
+            Stat(
+                id=str(stat["_id"]),
+                type=stat["type"],
+                value=stat["value"],
+                description=stat.get("description", "")
+            )
+            for stat in stats_data
+        ]
+
+    def resolve_stat(self, info, id):
+        stat_data = stats_collection.find_one({"_id": ObjectId(id)})
+        if stat_data:
+            return Stat(
+                id=str(stat_data["_id"]),
+                type=stat_data["type"],
+                value=stat_data["value"],
+                description=stat_data.get("description", "")
+            )
+        return None
+
+# GraphQL Mutations
+class Mutation(ObjectType):
+    add_stat = Field(
+        Stat,
+        stat_type=String(required=True),
+        value=Int(required=True),
+        description=String()
+    )
+    update_stat = Field(
+        Stat,
+        id=String(required=True),
+        stat_type=String(),
+        value=Int(),
+        description=String()
+    )
+    delete_stat = Field(
+        String,
+        id=String(required=True)
+    )
+    update_reservations_stat = Field(
+        String
+    )
+
+    def resolve_add_stat(self, info, stat_type, value, description=None):
+        new_stat = {
+            "type": stat_type,
+            "value": value,
+            "description": description or ""
+        }
+        result = stats_collection.insert_one(new_stat)
+        return Stat(
+            id=str(result.inserted_id),
+            type=new_stat["type"],
+            value=new_stat["value"],
+            description=new_stat["description"]
+        )
+
+    def resolve_update_stat(self, info, id, stat_type=None, value=None, description=None):
+        update_data = {}
+        if stat_type:
+            update_data["type"] = stat_type
+        if value is not None:
+            update_data["value"] = value
+        if description:
+            update_data["description"] = description
+
+        result = stats_collection.update_one(
+            {"_id": ObjectId(id)},
+            {"$set": update_data}
+        )
+        if result.matched_count == 0:
+            return None
+
+        updated_stat = stats_collection.find_one({"_id": ObjectId(id)})
+        return Stat(
+            id=str(updated_stat["_id"]),
+            type=updated_stat["type"],
+            value=updated_stat["value"],
+            description=updated_stat.get("description", "")
+        )
+
+    def resolve_delete_stat(self, info, id):
+        result = stats_collection.delete_one({"_id": ObjectId(id)})
+        if result.deleted_count > 0:
+            return f"Statistic with ID {id} deleted successfully."
+        return f"Statistic with ID {id} not found."
+
+    def resolve_update_reservations_stat(self, info):
+        try:
+            response = requests.get(RESERVATIONS_SERVICE_URL)
+            if response.status_code != 200:
+                return "Error retrieving reservations."
+
+            rezervacije = response.json()
+            total_reservations = len(rezervacije)
+
+            stats_data = {
+                "type": "reservations",
+                "value": total_reservations,
+                "description": "Total reservations"
+            }
+            stats_collection.update_one({"type": "reservations"}, {"$set": stats_data}, upsert=True)
+
+            return "Statistics updated successfully."
+        except Exception as e:
+            return str(e)
+
+# Ustvari shemo
+schema = Schema(query=Query, mutation=Mutation)
+
+# Dodaj GraphQL endpoint
+app.add_url_rule(
+    "/graphql",
+    view_func=GraphQLView.as_view(
+        "graphql",
+        schema=schema,
+        graphiql=True  # Omogoča GraphiQL vmesnik za testiranje
+    ),
+)
+# ------------------ graphql ----------------------
+
+
+
 
 @app.route('/stats', methods=['GET'])
 def get_all_stats():

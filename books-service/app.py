@@ -50,6 +50,92 @@ def jwt_required(func):
 MONGO_URI = 'mongodb+srv://Lea:123leici@cluster0.iupgk.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0'
 
 
+
+# ---------------graphql-------------
+class Book(ObjectType):
+    title = String(required=True)
+    author = String()
+    genre = String()
+    reserved = Boolean()
+
+class Query(ObjectType):
+    books = List(Book)
+    book = Field(Book, title=String(required=True))
+
+    def resolve_books(self, info):
+        books_data = books_collection.find({}, {'_id': 0})
+        return [Book(**book) for book in books_data]
+
+    def resolve_book(self, info, title):
+        book_data = books_collection.find_one({'title': title}, {'_id': 0})
+        if book_data:
+            return Book(**book_data)
+        return None
+
+class Mutation(ObjectType):
+    add_book = Field(
+        Book,
+        title=String(required=True),
+        author=String(),
+        genre=String(),
+        reserved=Boolean(default_value=False),
+    )
+
+    update_book = Field(
+        Book,
+        title=String(required=True),
+        author=String(),
+        genre=String(),
+        reserved=Boolean(),
+    )
+
+    delete_book = Field(Boolean, title=String(required=True))
+
+    def resolve_add_book(self, info, title, author=None, genre=None, reserved=False):
+        new_book = {
+            "title": title,
+            "author": author,
+            "genre": genre,
+            "reserved": reserved,
+        }
+        books_collection.insert_one(new_book)
+        return Book(**new_book)
+
+    def resolve_update_book(self, info, title, author=None, genre=None, reserved=None):
+        update_data = {}
+        if author is not None:
+            update_data["author"] = author
+        if genre is not None:
+            update_data["genre"] = genre
+        if reserved is not None:
+            update_data["reserved"] = reserved
+
+        result = books_collection.update_one({"title": title}, {"$set": update_data})
+        if result.matched_count == 0:
+            return None
+
+        updated_book = books_collection.find_one({"title": title}, {'_id': 0})
+        return Book(**updated_book)
+
+    def resolve_delete_book(self, info, title):
+        result = books_collection.delete_one({"title": title})
+        return result.deleted_count > 0
+
+schema = Schema(query=Query, mutation=Mutation)
+
+app.add_url_rule(
+    "/graphql",
+    view_func=GraphQLView.as_view(
+        "graphql",
+        schema=schema,
+        graphiql=True
+    ),
+)
+# ---------------graphql-------------
+
+
+
+
 @app.route('/')
 def login():
     return jsonify({"message": "Please log in"}), 401
