@@ -1,11 +1,14 @@
 import React, { useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const Login = ({ setToken }) => {
   const [formData, setFormData] = useState({
     username: "",
     password: "",
   });
+
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -15,19 +18,26 @@ const Login = ({ setToken }) => {
     e.preventDefault();
     try {
       const response = await axios.post(
-        "http://127.0.0.1:8000/token",
+        "http://localhost:8010/token",
         new URLSearchParams({
           username: formData.username,
           password: formData.password,
         }),
         { headers: { "Content-Type": "application/x-www-form-urlencoded" } }
       );
-      const token = response.data.access_token;
-      setToken(token);
-      alert("Prijava uspešna!");
+
+      if (response && response.data.access_token) {
+        const token = response.data.access_token;
+        setToken(token);
+        alert("Prijava uspešna!");
+        navigate("/home"); // Preusmeritev na nadzorno ploščo po prijavi
+      } else {
+        throw new Error("Prijava ni uspela. Preverite vaše podatke.");
+      }
     } catch (error) {
-      console.error("Napaka pri prijavi:", error.response.data);
-      alert("Napaka pri prijavi: " + error.response.data.detail);
+      const errorMessage = error.response?.data?.detail || "Napaka pri povezavi s strežnikom.";
+      alert("Napaka pri prijavi: " + errorMessage);
+      console.error("Napaka pri prijavi:", error);
     }
   };
 
@@ -53,6 +63,7 @@ const Login = ({ setToken }) => {
         />
         <button type="submit">Prijavi se</button>
       </form>
+      <button onClick={() => navigate("/register")}>Registracija</button>
     </div>
   );
 };

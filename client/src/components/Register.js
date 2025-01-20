@@ -1,13 +1,16 @@
 import React, { useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const Register = () => {
   const [formData, setFormData] = useState({
     username: "",
     email: "",
     password: "",
-    role: "user", // privzeta vloga
+    role: "user",
   });
+
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -16,11 +19,15 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post("http://127.0.0.1:8000/register", formData);
+      // Posodobi URL z "http://"
+      const response = await axios.post("http://localhost:8010/register", formData);
+
       alert("Registracija uspešna!");
+      navigate("/"); // Preusmeritev na prijavno stran po registraciji
     } catch (error) {
-      console.error("Napaka pri registraciji:", error.response.data);
-      alert("Napaka pri registraciji: " + error.response.data.detail);
+      // Preveri, če obstaja `error.response`, da ne povzroči dodatnih napak
+      const errorMessage = error.response?.data?.detail || "Napaka pri povezavi s strežnikom.";
+      alert("Napaka pri registraciji: " + errorMessage);
     }
   };
 
@@ -54,6 +61,7 @@ const Register = () => {
         />
         <button type="submit">Registriraj se</button>
       </form>
+      <button onClick={() => navigate("/")}>Nazaj na prijavo</button>
     </div>
   );
 };

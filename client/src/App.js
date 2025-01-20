@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import './App.css';
 import AddBook from './components/AddBook';
 import BookList from './components/BookList';
@@ -13,47 +14,61 @@ import ReservationList from './components/ReservationList';
 import Login from './components/Login';
 import Register from './components/Register';
 
+const ProtectedRoute = ({ token, children }) => {
+    return token ? children : <Navigate to="/" />;
+};
+
 const App = () => {
     const [token, setToken] = useState(null);
 
     const handleLogout = () => {
         setToken(null);
-        alert("Odjava uspešna!");
+        alert('Odjava uspešna!');
     };
 
     return (
-        <div>
-            <h1>Library Management</h1>
+        <Router>
+            <div>
+                <h1>Library Management</h1>
+                <Routes>
+                    {/* Prijava kot privzeta stran */}
+                    <Route
+                        path="/"
+                        element={!token ? <Login setToken={setToken} /> : <Navigate to="/dashboard" />}
+                    />
 
-            {!token ? (
-                <div>
-                    <h2>Prijava</h2>
-                    <Login setToken={setToken} />
-                    <h2>Registracija</h2>
-                    <Register />
-                </div>
-            ) : (
-                <div>
-                    <button onClick={handleLogout}>Odjava</button>
-                    <hr />
-                    <AddBook />
-                    <BookList />
-                    <hr />
-                    <AddUser />
-                    <UserList />
-                    <hr />
-                    <AddFeedback />
-                    <FeedbackList />
-                    <hr />
-                    <AddNotification />
-                    <NotificationList />
-                    <hr />
-                    <AddReservation />
-                    <ReservationList />
-                    <hr />
-                </div>
-            )}
-        </div>
+                    {/* Registracija */}
+                    <Route path="/register" element={<Register />} />
+
+                    {/* Nadzorna plošča (zaščitena vsebina) */}
+                    <Route
+                        path="/dashboard"
+                        element={
+                            <ProtectedRoute token={token}>
+                                <div>
+                                    <button onClick={handleLogout}>Odjava</button>
+                                    <hr />
+                                    <AddBook />
+                                    <BookList />
+                                    <hr />
+                                    <AddUser />
+                                    <UserList />
+                                    <hr />
+                                    <AddFeedback />
+                                    <FeedbackList />
+                                    <hr />
+                                    <AddNotification />
+                                    <NotificationList />
+                                    <hr />
+                                    <AddReservation />
+                                    <ReservationList />
+                                </div>
+                            </ProtectedRoute>
+                        }
+                    />
+                </Routes>
+            </div>
+        </Router>
     );
 };
 
