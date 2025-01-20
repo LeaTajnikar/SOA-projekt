@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: stats-service
+    env: python # or python3, depending on your app
+    startCommand: "gunicorn --bind 0.0.0.0:$PORT app:app" # Replace app:app if your Flask app object isn't named 'app'
+    buildCommand: "pip install -r requirements.txt"
+    plan: free # Or a paid plan if needed

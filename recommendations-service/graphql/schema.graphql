@@ -1,0 +1,7 @@
+type Query {
+  recommendations(user: "JohnDoe") {
+    user
+    bookTitle
+    addedDate
+  }
+}

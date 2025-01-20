@@ -7,3 +7,6 @@ python-dotenv
 flask_restx
 Flask-JWT-Extended
 PyJWT
+flask_graphql
+datetime
+graphene

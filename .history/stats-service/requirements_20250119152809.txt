@@ -1,0 +1,10 @@
+Flask
+Flask-Cors
+gunicorn
+pymongo
+requests
+Flask-Swagger-UI
+python-dotenv
+flask_restx
+Flask-JWT-Extended
+PyJWT

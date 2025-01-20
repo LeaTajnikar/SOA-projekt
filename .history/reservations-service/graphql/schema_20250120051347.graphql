@@ -1,0 +1,16 @@
+query {
+  reservations(username: "user1") {
+    username
+    bookTitle
+    reservationDate
+    expirationDate
+  }
+}
+mutation {
+  addReservation(username: "user1", bookTitle: "Book A") {
+    username
+    bookTitle
+    reservationDate
+    expirationDate
+  }
+}

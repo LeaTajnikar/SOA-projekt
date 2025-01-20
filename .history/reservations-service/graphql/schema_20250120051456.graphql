@@ -1,0 +1,16 @@
+type Query {
+  reservations(username: "admin") {
+    username
+    bookTitle
+    reservationDate
+    expirationDate
+  }
+}
+type Mutation {
+  addReservation(username: "admin", bookTitle: "Book A") {
+    username
+    bookTitle
+    reservationDate
+    expirationDate
+  }
+}

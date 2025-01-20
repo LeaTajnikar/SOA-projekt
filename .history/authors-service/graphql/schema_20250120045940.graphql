@@ -1,0 +1,27 @@
+# Get all authors with their books
+query {
+  authors {
+    name
+    nationality
+    birth_date
+    books {
+      title
+      isbn
+      genre {
+        name
+      }
+    }
+  }
+}
+
+# Get specific author
+query {
+  author(name: "Author Name") {
+    name
+    biography
+    books {
+      title
+      publication_date
+    }
+  }
+}

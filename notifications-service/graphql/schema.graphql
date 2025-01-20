@@ -1,0 +1,26 @@
+# Define the Notification type
+type Notification {
+  title: String!
+  message: String!
+  user: String!
+}
+
+# Define queries for fetching notifications
+type Query {
+  notifications: [Notification] # Fetch all notifications
+}
+
+# Define mutations for creating a new notification
+type Mutation {
+  createNotification(
+    user: String!
+    title: String!
+    message: String!
+  ): Notification
+}
+
+# The Schema defines the entry points for the GraphQL API
+schema {
+  query: Query
+  mutation: Mutation
+}

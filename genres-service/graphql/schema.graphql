@@ -1,0 +1,15 @@
+query {
+  allGenres {
+    name
+    description
+    books
+  }
+}
+
+query {
+  genreByName(name: "Fiction") {
+    name
+    description
+    books
+  }
+}

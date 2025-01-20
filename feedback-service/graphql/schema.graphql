@@ -1,0 +1,9 @@
+query {
+  allFeedback {
+    id
+    username
+    message
+    rating
+    status
+  }
+}
